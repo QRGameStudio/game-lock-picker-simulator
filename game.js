@@ -8,6 +8,11 @@ let SPRITE_COIN = ['.'];
 let MUSIC;
 
 /**
+ * @type GModal
+ */
+let MODAL;
+
+/**
  * @type HTMLElement
  */
 let EL_CONTENT;
@@ -20,19 +25,29 @@ let EL_LOCK_CONTAINER;
  */
 let EL_MONEY;
 
-let COINS = 2500;
-let COINS_PAINTED = COINS;
+/**
+ * @type GTonesSequence
+ */
+let SONG;
+
+let COINS = 0;
+let COINS_PAINTED = 0;
 let INTERVAL_COINS_PAINTING = null;
 
 function gameEntryPoint() {
+    COINS = COINS_PAINTED = 2500;
     EL_CONTENT = document.querySelector('#game-layer');
     EL_LOCK_CONTAINER = EL_CONTENT.querySelector('.locks');
     EL_MONEY = EL_CONTENT.querySelector('.money');
     SPRITE_LOCK_LOCKED = [...GUt.ud('8J+Ukg==')];
     SPRITE_LOCK_UNLOCKED = [...GUt.ud('8J+Ukw==')];
     SPRITE_COIN = [...GUt.ud('8J+SsA==')];
+    MODAL = new GModal();
     MUSIC = new GSongLib();
-    MUSIC.play('songALooping', -1);
+    MUSIC.get('songALooping').then((song) => {
+        SONG = song;
+        song.play(-1);
+    });
     paintCoins();
     genLevel();
 }
@@ -80,10 +95,12 @@ function genLevel() {
             if (i === correctLock) {
                 lock.innerText = SPRITE_LOCK_UNLOCKED[0];
                 COINS += 50 + randint(1000);
-                MUSIC.play('success');
+                SONG.stop();
+                MUSIC.play('success').then(() => SONG.play());
             } else {
                 COINS -= 50 + randint(300);
-                MUSIC.play('fail');
+                SONG.stop();
+                MUSIC.play('fail').then(() => SONG.play());
             }
             paintCoins();
 
@@ -92,9 +109,20 @@ function genLevel() {
                 if (l.dataset.w !== 'yay') {
                     disappear();
                 } else {
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         disappear();
-                        genLevel();
+                        if (COINS > 0) {
+                            genLevel();
+                        } else {
+                            SONG.stop();
+                            SONG = await MUSIC.get('failLong');
+                            // noinspection ES6MissingAwait
+                            SONG.play();
+                            MODAL.alert('GAME OVER', 'FAIL').then(() => {
+                                SONG.stop();
+                                gameEntryPoint();
+                            });
+                        }
                     }, 1500);
                 }
             });
