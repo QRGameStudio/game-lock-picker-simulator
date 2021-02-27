@@ -19,6 +19,7 @@ html, body, #game-layer, .locks {
 .lock {
     font-size: min(28vw, 28vh);
     cursor: pointer;
+    user-select: none;
 }
 
 .money {

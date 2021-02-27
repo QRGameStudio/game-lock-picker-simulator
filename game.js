@@ -90,8 +90,12 @@ function genLevel() {
         locks.push(lock);
         lock.classList.add('lock');
         lock.innerText = SPRITE_LOCK_LOCKED[0];
-        lock.dataset.w = i === correctLock ? 'yay' : 'nay';
+        lock.dataset.w = i === correctLock ? 'yay' : 'nay'; // w stands for winning
+        lock.dataset.d = '0';  // d stands for disabled
         lock.onclick = () => {
+            if (lock.dataset.d === '1') {
+                return;
+            }
             if (i === correctLock) {
                 lock.innerText = SPRITE_LOCK_UNLOCKED[0];
                 COINS += 50 + randint(1000);
@@ -105,6 +109,7 @@ function genLevel() {
             paintCoins();
 
             locks.forEach((l) => {
+                l.dataset.d = '1';
                 const disappear = () => l.style.visibility = 'hidden';
                 if (l.dataset.w !== 'yay') {
                     disappear();
