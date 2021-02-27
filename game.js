@@ -96,11 +96,11 @@ function genLevel() {
                 lock.innerText = SPRITE_LOCK_UNLOCKED[0];
                 COINS += 50 + randint(1000);
                 SONG.stop();
-                MUSIC.play('success').then(() => SONG.play());
+                MUSIC.play('success').then(() => SONG.play(-1));
             } else {
                 COINS -= 50 + randint(300);
                 SONG.stop();
-                MUSIC.play('fail').then(() => SONG.play());
+                MUSIC.play('fail').then(() => SONG.play(-1));
             }
             paintCoins();
 
@@ -116,10 +116,7 @@ function genLevel() {
                         } else {
                             SONG.stop();
                             SONG = await MUSIC.get('failLong');
-                            // noinspection ES6MissingAwait
-                            SONG.play();
                             MODAL.alert('GAME OVER', 'FAIL').then(() => {
-                                SONG.stop();
                                 gameEntryPoint();
                             });
                         }
